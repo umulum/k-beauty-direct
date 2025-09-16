@@ -56,10 +56,10 @@ filtered = df[df["기준연월"] == selected_period].nsmallest(10, "순위")
 # 좌표 join
 merged = pd.merge(filtered, country_coords, on="국가명", how="left")
 
-# Path Map 그리기 (서울 ↔ 국가)-
+# Path Map 그리기 (서울 ↔ 국가)
 SEOUL_LAT, SEOUL_LON = 37.5665, 126.9780
 
-# PathLayer는 "path" 컬럼을 요구함
+# PathLayer
 path_data = []
 for _, row in merged.iterrows():
     path_data.append({
@@ -104,7 +104,7 @@ chart1 = (
     .encode(
         x=alt.X("yearmonth(기준연월):T", title="기간", axis=alt.Axis(format="%Y년 %m월")),
         y=alt.Y("sum(수출금액 (천$)):Q", title="수출금액 (천$)", axis=alt.Axis(format="~s"), 
-                scale=alt.Scale(domain=[45000, 60000])),
+                scale=alt.Scale(domain=[df_total["수출금액 (천$)"].min() - 2000, df_total["수출금액 (천$)"].max() + 2000])),
         tooltip=["기준연월:T", "수출금액 (천$):Q"]
     )
     .properties(width=400, height=400, title="한국 → 전세계 수출금액 추이")
@@ -127,9 +127,7 @@ bar_chart = (
 )
 )
 
-# -------------------------------
 # 3. 전월 대비 교역 증가 TOP 5
-# -------------------------------
 df_sorted = df.sort_values("기준연월")
 df_sorted["전월수출"] = df_sorted.groupby("국가명")["수출금액 ($)"].shift(1)
 df_sorted["증감률"] = (df_sorted["수출금액 ($)"] - df_sorted["전월수출"]) / df_sorted["전월수출"] * 100
@@ -137,17 +135,17 @@ df_sorted["증감률"] = (df_sorted["수출금액 ($)"] - df_sorted["전월수�
 df_growth = df_sorted[df_sorted["기준연월"] == selected_period].dropna(subset=["증감률"])
 df_growth_top5 = df_growth.nlargest(5, "증감률")
 
-# 미니 라인차트용: 최근 4개월
-df_recent = df_sorted[df_sorted["기준연월"] >= (selected_period - pd.DateOffset(months=4))]
+# 미니 라인차트용: 최근 5개월
+df_recent = df_sorted[df_sorted["기준연월"] >= (selected_period - pd.DateOffset(months=5))]
 
 line_chart_growth = (
     alt.Chart(df_recent[df_recent["국가명"].isin(df_growth_top5["국가명"])])
     .mark_line(point=True)
     .encode(
         x=alt.X("yearmonth(기준연월):T", title="기간"),
-        y=alt.Y("수출금액 ($):Q", axis=alt.Axis(format="~s")),
+        y=alt.Y("증감률", axis=alt.Axis(format="~%")),
         color="국가명:N",
-        tooltip=["국가명", "기준연월:T", "수출금액 ($)"]
+        tooltip=["국가명", "기준연월:T", "증감률"]
     )
     .properties(width=400, height=400, title="전월대비 교역증가 TOP 5")
 )
