@@ -55,15 +55,15 @@ df_key = df_key.melt(id_vars="국가명", var_name="연도", value_name="수출�
 
 df_plot = pd.concat([df_total, df_key], ignore_index=True)
 
-df_plot["수출금액(백만$)"] = df_plot["수출금액"] / 1_000_000
+df_plot["수출금액($)"] = df_plot["수출금액"]  # / 1_000_000
 
 # 꺾은선 그래프
 line_chart = alt.Chart(df_plot).mark_line(point=True).encode(
     x=alt.X("연도:N", axis=alt.Axis(title="연도")),
-    y=alt.Y("수출금액(백만$):Q",
-            axis=alt.Axis(title="수출금액 (백만$)", format=",.0f")),  # 천단위 구분, 소수점 제거
+    y=alt.Y("수출금액($):Q",
+            axis=alt.Axis(title="수출금액 ($)", format=",.0f")),  # 천단위 구분, 소수점 제거
     color="국가명:N",
-    tooltip=["국가명", "연도", alt.Tooltip("수출금액(백만$):Q", format=",.2f")]
+    tooltip=["국가명", "연도", alt.Tooltip("수출금액($):Q", format=",.2f")]
 ).properties(
     width=700,
     height=400,
