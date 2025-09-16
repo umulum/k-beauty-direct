@@ -150,9 +150,6 @@ line_chart_growth = (
     .properties(width=400, height=400, title="전월대비 교역증가 TOP 5")
 )
 
-# -------------------------------
-# 레이아웃 (열 3개)
-# -------------------------------
 col1, col2, col3 = st.columns(3)
 
 with col1:
