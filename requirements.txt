@@ -1,0 +1,5 @@
+altair
+openpyxl
+plotly
+pydeck
+streamlit
