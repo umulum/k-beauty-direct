@@ -97,7 +97,7 @@ with col1:
         fig = px.line_polar(radar_data, r="값", theta="지표", line_close=True, hover_name="지표", hover_data={"값": True})
         fig.update_traces(fill="toself")
         fig.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, radar_data["값"].max()*1.2])),
+            polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
             dragmode=False  # 확대/이동 비활성화
         )
         st.plotly_chart(fig, use_container_width=True)
@@ -129,7 +129,7 @@ with col2:
                     #     x=0.5, y=1.3, xref='paper', yref='paper', 
                     #     text=r["지표"], showarrow=False, font=dict(size=16)
                     # )
-                    st.plotly_chart(fig, use_container_width=False)
+                    st.plotly_chart(fig, use_container_width=False, key=f'gauge_{i}_{j}')
                 
     else:
         st.warning("선택한 국가와 HS CODE 데이터가 없습니다.")
