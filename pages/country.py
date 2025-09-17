@@ -34,14 +34,26 @@ country_code_map = {
     "태국": "TH", "튀르키예": "TR", "프랑스": "FR", "UAE": "AE"
 }
 
-img_path = os.path.join("data", "img", f"{country_code_map[selected_country]}.jpg")
+# img_path = os.path.join("data", "img", f"{country_code_map[selected_country]}.jpg")
+img = f"https://www.kotra.or.kr/bigdata/resources/images/nation/{country_code_map[selected_country]}.jpg"
+url = f'https://www.kotra.or.kr/bigdata/marketAnalysis#search/{country_code_map[selected_country]}'
 
 # 국기, KPI 카드
 col1, col2 = st.columns([1, 3])  
 with col1:
-    if os.path.exists(img_path):
-        st.image(img_path, caption=selected_country, use_container_width=False)
 
+    st.markdown(
+        f"""
+        <a href="{url}" target="_blank">
+            <img src="{img}" alt="{selected_country}">
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # if os.path.exists(img_path):
+    #     st.image(img_path, caption=selected_country, use_container_width=False)
+    
 with col2:
     kpi_row = kpi_df[kpi_df["국가"] == selected_country]
     if not kpi_row.empty:
