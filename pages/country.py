@@ -19,7 +19,14 @@ trade_df, kpi_df = load_excel("data/국가 정보.xlsx")
 countries = ["미국", "베트남", "브라질", "영국", "인도", "인도네시아",
              "일본", "중국", "태국", "튀르키예", "프랑스", "UAE"]
 
-selected_country = st.selectbox("국가 선택", countries, index=0)
+selected_country_name = st.session_state.get("selected_country", "미국")
+
+selected_country = st.selectbox(
+    "국가 선택",
+    options=countries,
+    index=countries.index(selected_country_name),  
+    key="selected_country"                    
+)
 
 country_code_map = {
     "미국": "US", "베트남": "VN", "브라질": "BR", "영국": "GB",
