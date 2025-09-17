@@ -40,7 +40,12 @@ df["기준연월"] = pd.to_datetime(df["조회기준"])
 df["수출금액 (천$)"] = df["수출금액 ($)"]/1000
 
 # 조회 기준 선택 
-available_periods = sorted(df["기준연월"].unique(), reverse=True)
+# available_periods = sorted(df["기준연월"].unique(), reverse=True)
+# default_period = available_periods[0]
+
+
+available_periods = pd.date_range(start="2025-01-01", end="2025-07-01", freq="MS")  
+available_periods = sorted(available_periods, reverse=True)
 default_period = available_periods[0]
 
 selected_period = st.selectbox(
@@ -65,6 +70,7 @@ for _, row in merged.iterrows():
     path_data.append({
         "country": row["국가명"],
         "export_value": row["수출금액 ($)"],
+        "export_value_str": f"{row['수출금액 ($)']:,.0f}",
         "path": [
             [SEOUL_LON, SEOUL_LAT],   # 출발 (서울)
             [row["경도"], row["위도"]]  # 도착 (국가)
@@ -76,23 +82,27 @@ path_layer = pdk.Layer(
     data=path_data,
     get_path="path",
     get_color=[0, 128, 255],
-    get_width=2,
+    get_width=15,
     width_scale=20,
     width_min_pixels=2,
     pickable=True
 )
 
 view_state = pdk.ViewState(
-    latitude=30,
-    longitude=20,
-    zoom=1.2,
-    pitch=0
+    longitude=30,
+    latitude=40,
+    zoom=1.8,
+    min_zoom=1.8,   
+    max_zoom=1.8,  
+    pitch=0,
+    bearing=0,
+    drag_rotate=False,   # 지도 회전 X
 )
 
 st.pydeck_chart(pdk.Deck(
     layers=[path_layer],
     initial_view_state=view_state,
-    tooltip={"text": "국가: {country}\n수출금액: {export_value}"}
+    tooltip={"text": "국가: {country}\n수출금액 ($): {export_value_str}"}
 ))
 
 # 1. 한국 → 전세계 수출금액 추이
@@ -107,7 +117,7 @@ chart1 = (
                 scale=alt.Scale(domain=[df_total["수출금액 (천$)"].min() - 2000, df_total["수출금액 (천$)"].max() + 2000])),
         tooltip=["기준연월:T", "수출금액 (천$):Q"]
     )
-    .properties(width=400, height=400, title="한국 → 전세계 수출금액 추이")
+    .properties(width=400, height=400)
 )
 
 # 2. 교역지역 TOP 5
@@ -120,46 +130,73 @@ bar_chart = (
         x=alt.X("수출금액 (천$):Q", axis=alt.Axis(format="~s"), title="수출금액 (천$)"),
         y=alt.Y("국가명:N", sort="-x", title="국가"),
         tooltip=["국가명", "수출금액 (천$)"]
-    ).properties(
-    width=400,
-    height=400,
-    title="교역지역 TOP 5"
-)
-)
-
-# 3. 전월 대비 교역 증가 TOP 5
-df_sorted = df.sort_values("기준연월")
-df_sorted["전월수출"] = df_sorted.groupby("국가명")["수출금액 ($)"].shift(1)
-df_sorted["증감률"] = (df_sorted["수출금액 ($)"] - df_sorted["전월수출"]) / df_sorted["전월수출"] * 100
-
-df_growth = df_sorted[df_sorted["기준연월"] == selected_period].dropna(subset=["증감률"])
-df_growth_top5 = df_growth.nlargest(5, "증감률")
-
-# 미니 라인차트용: 최근 5개월
-df_recent = df_sorted[df_sorted["기준연월"] >= (selected_period - pd.DateOffset(months=5))]
-
-line_chart_growth = (
-    alt.Chart(df_recent[df_recent["국가명"].isin(df_growth_top5["국가명"])])
-    .mark_line(point=True)
-    .encode(
-        x=alt.X("yearmonth(기준연월):T", title="기간"),
-        y=alt.Y("증감률", axis=alt.Axis(format="~%")),
-        color="국가명:N",
-        tooltip=["국가명", "기준연월:T", "증감률"]
-    )
-    .properties(width=400, height=400, title="전월대비 교역증가 TOP 5")
+    ).properties(width=400, height=400)
 )
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
+    st.markdown("### 한국 → 전세계 수출금액 추이")
     st.altair_chart(chart1, use_container_width=True)
 
 with col2:
+    st.markdown("### 교역지역 TOP 5")
     st.altair_chart(bar_chart, use_container_width=True)
 
 with col3:
-    st.altair_chart(line_chart_growth, use_container_width=True)
+    st.markdown("### 교역지역 TOP 5")
+    st.markdown(" ")
+
+    df_sorted = df.sort_values("기준연월")
+    df_sorted['증감률'] = df_sorted['수출 증감률']*100
+
+    period_range = pd.date_range(start=selected_period - pd.DateOffset(months=4), end=selected_period, freq="MS")
+
+    df_recent = df_sorted[(df_sorted["기준연월"] >= period_range.min()) & (df_sorted["기준연월"] <= period_range.max())]
+
+    # 최근 5개월 동안 데이터가 모두 있는 국가만 필터링
+    valid_countries = df_recent.groupby("국가명")["기준연월"].nunique().loc[lambda x: x == 5].index
+
+    df_recent_valid = df_recent[df_recent["국가명"].isin(valid_countries)]
+    df_selected = df_recent_valid[df_recent_valid["기준연월"] == selected_period].dropna(subset=["증감률"])
+    df_growth_top5 = df_selected.nlargest(5, "증감률")
+
+    # 국가별 반복 출력
+    for _, row in enumerate(df_growth_top5.itertuples(), start=1):
+        country = row.국가명
+        latest_growth = row.증감률
+
+        df_country = df_recent_valid[df_recent_valid["국가명"] == country]
+
+        chart = (
+            alt.Chart(df_country)
+            .mark_line(point=True)
+            .encode(
+                x=alt.X("yearmonth(기준연월):T", title=None),
+                y=alt.Y("증감률:Q", title=None),
+                tooltip=[
+                    alt.Tooltip("기준연월:T", title="기간"),
+                    alt.Tooltip("증감률:Q", format=".2f", title="수출 증감률 (%)")
+                ]
+            )
+            .properties(width=200, height=50)
+            .configure_axis(
+                grid=False,    # 격자선 제거
+                domain=False,  # 축 선 제거
+                ticks=False,   # 눈금 제거
+                labels=False   # 레이블 제거
+            )
+        )
+
+        col1, col2, col3, col4 = st.columns([0.5, 2, 2, 1.5])
+        with col1:
+            st.markdown(" ")
+        with col2:
+            st.markdown(f"**{country}**")
+        with col3:
+            st.altair_chart(chart, use_container_width=True)
+        with col4:
+            st.markdown(f"{latest_growth:.2f}%")            
 
 # 데이터 표
 st.subheader(f"📑 {product_name} 상위 10개국 ({selected_period.strftime('%Y년 %m월')})")
