@@ -39,7 +39,7 @@ with col2:
     kpi_row = kpi_df[kpi_df["국가"] == selected_country]
     if not kpi_row.empty:
         kpi_cols = [col for col in kpi_df.columns if col != "국가"]
-        kpi_units = ["백만$", "건", "건", "건", "$"]
+        kpi_units = ["$", "건", "건", "건", "백만$"]
 
         cols = st.columns(5)
 
