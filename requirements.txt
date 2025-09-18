@@ -3,3 +3,5 @@ openpyxl
 plotly
 pydeck
 streamlit
+scikit-learn 
+sentence-transformers
