@@ -24,8 +24,8 @@ selected_country_name = st.session_state.get("selected_country", "미국")
 selected_country = st.selectbox(
     "국가 선택",
     options=countries,
-    index=countries.index(selected_country_name),  
-    key="selected_country"                    
+    index=countries.index(selected_country_name)
+    # key="selected_country"                    
 )
 
 country_code_map = {

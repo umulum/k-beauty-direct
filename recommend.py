@@ -49,10 +49,9 @@ col1, col2 = st.columns([3, 1])
 
 with col1:
     keywords_input = st.text_input(
-        "키워드를 입력하세요 (쉼표로 구분):",
+        "키워드 입력",
         value=st.session_state.keywords_input,
         placeholder="예: vegan, organic, skincare, 비건, 유기농, 스킨케어",
-        help="여러 키워드는 쉼표로 구분해주세요. 한국어, 영어, 일본어, 중국어 등 다국어 지원"
     )
     st.session_state.keywords_input = keywords_input
 with col2:
