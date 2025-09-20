@@ -10,7 +10,7 @@ st.set_page_config(page_title="화장품 수출 추천 서비스", layout="wide"
 
 st.title("💄 화장품 수출 국가 추천 서비스")
 
-st.subheader("분석할 화장품 품목을 선택하세요.")
+st.subheader("분석할 화장품 품목")
 
 # 품목 옵션
 product_options = {
@@ -141,39 +141,6 @@ if keywords_input:
     else:
         st.info("키워드를 입력해주세요.")
 st.markdown("----")
-# --------------------------------
-# KOTRA 공공데이터 국가별 수출금액 시각화 
-# --------------------------------
-# CSV 로드
-# df_cos = pd.read_csv("data/대한무역투자진흥공사_4대 소비재 국가별 수출금액 (화장품)_20221231.csv")
-
-# # 전체 합계
-# df_total = df_cos.drop(columns=["국가명"]).sum().reset_index()
-# df_total.columns = ["연도", "수출금액"]
-# df_total["국가명"] = "전체 합계"
-
-# key_countries = ["미국", "중국", "일본"]
-# df_key = df_cos[df_cos["국가명"].isin(key_countries)]
-# df_key = df_key.melt(id_vars="국가명", var_name="연도", value_name="수출금액")
-
-# df_plot = pd.concat([df_total, df_key], ignore_index=True)
-
-# df_plot["수출금액($)"] = df_plot["수출금액"]  # / 1_000_000
-
-# # 꺾은선 그래프
-# line_chart = alt.Chart(df_plot).mark_line(point=True).encode(
-#     x=alt.X("연도:N", axis=alt.Axis(title="연도")),
-#     y=alt.Y("수출금액($):Q",
-#             axis=alt.Axis(title="수출금액 ($)", format=",.0f")),  # 천단위 구분, 소수점 제거
-#     color="국가명:N",
-#     tooltip=["국가명", "연도", alt.Tooltip("수출금액($):Q", format=",.2f")]
-# ).properties(
-#     width=700,
-#     height=400,
-#     title="화장품 수출 성장 추이"
-# )
-
-# st.altair_chart(line_chart, use_container_width=True)
 
 # --------------------------------
 # 한국무역통계포털 수출입 통계 시각화 
