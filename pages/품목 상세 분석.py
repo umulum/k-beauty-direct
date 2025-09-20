@@ -34,50 +34,67 @@ data = load_excel(excel_file)
 country_coords = data["lat-lon"]
 
 df = data[str(product_code)]
-
 df["기준연월"] = pd.to_datetime(df["조회기준"])
 df["수출금액 (천$)"] = df["수출금액 ($)"]/1000
 
-# 조회 기준 선택 
+# 조회 기준 설정
 available_periods = pd.date_range(start="2025-01-01", end="2025-07-01", freq="MS")  
 available_periods = sorted(available_periods, reverse=True)
 default_period = available_periods[0]
 
-if "selected_product" not in st.session_state:
-    st.session_state["selected_product"] = product_code
+# URL 파라미터에서 값 가져오기 또는 기본값 설정
+query_params = st.query_params
+product_code = query_params.get("product", "330410")
+period_str = query_params.get("period", default_period.strftime("%Y-%m-01"))
 
-if "selected_period" not in st.session_state:
-    st.session_state["selected_period"] = default_period
+try:
+    selected_period = pd.to_datetime(period_str)
+    if selected_period not in available_periods:
+        selected_period = default_period
+except:
+    selected_period = default_period
+
+if product_code not in product_options:
+    product_code = "330410"
 
 c1, c2 = st.columns(2)
 
 with c1:
     product_keys = list(product_options.keys())
-    try:
-        current_index = product_keys.index(product_code)
-    except ValueError:
-        current_index = 0
+    current_product_index = product_keys.index(product_code)
     
-    selected_key = st.selectbox(
+    new_product = st.selectbox(
         "품목 선택",
         options=product_keys,
-        index=current_index,
-        format_func=lambda x: product_options[x],
-        key="product_selector"  # 고유한 키 추가
+        index=current_product_index,
+        format_func=lambda x: product_options[x]
     )
     
-    # 선택이 변경되었을 때만 세션 상태 업데이트
-    if selected_key != st.session_state.get("selected_product"):
-        st.session_state["selected_product"] = selected_key
+    # 품목이 변경되면 URL 파라미터 업데이트
+    if new_product != product_code:
+        st.query_params.update({
+            "product": new_product,
+            "period": selected_period.strftime("%Y-%m-01")
+        })
+        st.rerun()
 
 with c2:
-    selected_period = st.selectbox(
+    current_period_index = list(available_periods).index(selected_period)
+    
+    new_period = st.selectbox(
         "조회 기준 연월",
         options=available_periods,
-        index=0,
-        format_func=lambda x: x.strftime("%Y년 %m월")  # 표시용 포맷
+        index=current_period_index,
+        format_func=lambda x: x.strftime("%Y년 %m월")
     )
-    st.session_state["selected_period"] = selected_period
+    
+    # 기간이 변경되면 URL 파라미터 업데이트
+    if new_period != selected_period:
+        st.query_params.update({
+            "product": product_code,
+            "period": new_period.strftime("%Y-%m-01")
+        })
+        st.rerun()
 
 # 데이터 필터링 (상위 10개)
 filtered = df[df["기준연월"] == selected_period].nsmallest(10, "순위")
@@ -186,11 +203,11 @@ with col1:
     st.altair_chart(chart1, use_container_width=True)
 
 with col2:
-    st.markdown("### 교역지역 TOP 5")
+    st.markdown("### 교역 지역 TOP 5")
     st.altair_chart(bar_chart, use_container_width=True)
 
 with col3:
-    st.markdown("### 교역지역 TOP 5")
+    st.markdown("### 전월 대비 교역 증가 TOP 5")
     st.markdown(" ")
 
     df_sorted = df.sort_values("기준연월")
@@ -245,5 +262,5 @@ with col3:
             st.markdown(f"{latest_growth:.2f}%")            
 
 # 데이터 표
-st.subheader(f"📑 {product_name} 상위 10개국 ({selected_period.strftime('%Y년 %m월')})")
+st.subheader(f"📑 {product_options[product_code]} 상위 10개국 ({selected_period.strftime('%Y년 %m월')})")
 st.dataframe(filtered[["순위", "국가명", "수출금액 ($)", "수출 점유율", "수출 증감률"]], hide_index=True)
