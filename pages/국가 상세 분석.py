@@ -94,15 +94,21 @@ col1, col2, col3 = st.columns([0.6, 2.2, 1.2])
 with col1:
     st.markdown(
         f"""
-        <a href="{url}" target="_blank">
-        <img src="{img}" width="180px" style="margin:20px; padding:10px; margin-top:30px;">
-        </a>
+        <div style="text-align:center; margin-top:10px;">
+            <a href="{url}" target="_blank">
+                <img src="{img}" width="180px" style="margin:10px 20px 5px 20px; padding:10px;">
+            </a>
+            <div style="color:gray;font-family:'JalnanGothic'">{selected_country} ({country_code_map[selected_country]})</div>
+        </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with col3:
     if os.path.exists(img_path):
+        st.markdown(f"""<div style="color:gray;font-family:'JalnanGothic';margin-bottom: 10px;">{selected_country}의 화장품 키워드</div>""",
+        unsafe_allow_html=True)
         st.image(img_path)
 
 with col2:
@@ -118,7 +124,11 @@ with col2:
             cols = st.columns(len(row_kpi_cols))  # 남은 개수만큼 컬럼 생성
 
             for col, kpi_name, unit in zip(cols, row_kpi_cols, row_kpi_units):
+
                 value = kpi_row.iloc[0][kpi_name]
+                num = float(value)
+                formatted_value = f"{int(num):,}" if num.is_integer() else f"{num:,.2f}"
+
                 html = f"""
                     <div style="
                         text-align:center;
@@ -127,9 +137,10 @@ with col2:
                         padding:10px;
                         margin:5px;
                         background-color:#ffffff;
+                        font-family:'JalnanGothic';
                     ">
                         <div style="font-size:16px;font-weight:bold;margin-bottom:5px">{kpi_name}</div>
-                        <div style="font-size:24px;font-weight:bold;display:inline">{value}</div>
+                        <div style="font-size:24px;font-weight:bold;display:inline">{formatted_value}</div>
                         <div style="font-size:14px;color:gray;display:inline;margin-left:2px">{unit}</div>
                     </div>
                 """
@@ -162,7 +173,8 @@ with col1:
         fig.update_traces(fill="toself")
         fig.update_layout(
             polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
-            dragmode=False  # 확대/이동 비활성화
+            dragmode=False,  # 확대/이동 비활성화
+            font=dict(family="JalnanGothic")
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -195,7 +207,7 @@ with col2:
                             'bar': {'color': bar_color, 'thickness': 1},            
                         }
                     ))
-                    fig.update_layout(height=150, width=270, margin=dict(t=20, b=0, l=0, r=0))
+                    fig.update_layout(height=150, width=270, margin=dict(t=0, b=0, l=0, r=0), font=dict(family="JalnanGothic"))
                     st.plotly_chart(fig, use_container_width=False, key=f'gauge_{i}_{j}')
                 
     else:

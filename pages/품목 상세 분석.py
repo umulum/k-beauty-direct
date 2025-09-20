@@ -136,6 +136,17 @@ chart1 = (
         tooltip=["기준연월:T", "수출금액 (천$):Q"]
     )
     .properties(width=400, height=400)
+    .configure_axis(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
+    )
+    .configure_legend(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
+    )
+    .configure_title(
+        font="JalnanGothic"
+    )
 )
 
 # 2. 교역지역 TOP 5
@@ -149,6 +160,17 @@ bar_chart = (
         y=alt.Y("국가명:N", sort="-x", title="국가"),
         tooltip=["국가명", "수출금액 (천$)"]
     ).properties(width=400, height=400)
+    .configure_axis(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
+    )
+    .configure_legend(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
+    )
+    .configure_title(
+        font="JalnanGothic"
+    )
 )
 
 col1, col2, col3 = st.columns(3)

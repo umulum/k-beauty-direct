@@ -163,6 +163,7 @@ st.subheader("화장품 수출입 변화")
 col1, col2 = st.columns(2)
 
 with col1:
+    st.markdown("##### 수출 금액 변화")
     export_chart = alt.Chart(df).mark_line(point=True).encode(
         x=alt.X("기간:N", axis=alt.Axis(labelAngle=-45)),
         y=alt.Y("수출 금액:Q", axis=alt.Axis(title="수출 금액 ($)")),
@@ -170,12 +171,18 @@ with col1:
         tooltip=["국가", "기간", "수출 금액"]
     ).properties(
         width=600,
-        height=400,
-        title="수출 금액 변화"
+        height=410,
+    ).configure_axis(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
+    ).configure_legend(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
     )
     st.altair_chart(export_chart, use_container_width=True)
 
 with col2:
+    st.markdown("##### 수입 금액 변화")
     import_chart = alt.Chart(df[df["국가"] != "한국"]).mark_line(point=True).encode(
         x=alt.X("기간:N", axis=alt.Axis(labelAngle=-45)),
         y=alt.Y("수입 금액:Q", axis=alt.Axis(title="수입 금액 ($)")),
@@ -183,7 +190,12 @@ with col2:
         tooltip=["국가", "기간", "수입 금액"]
     ).properties(
         width=600,
-        height=400,
-        title="수입 금액 변화"
+        height=410,
+    ).configure_axis(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
+    ).configure_legend(
+        labelFont="JalnanGothic",
+        titleFont="JalnanGothic"
     )
     st.altair_chart(import_chart, use_container_width=True)
