@@ -14,17 +14,17 @@ requests
 
 ---
 
-📦K-Beauty Direct
- ┣ 📂assets
- ┣ 📂data
- ┃ ┗ 📂img
- ┣ 📂pages
- ┃ ┣ 📜country.py
- ┃ ┗ 📜products.py
- ┣ 📂modules 
+📦K-Beauty Direct      
+ ┣ 📂assets       
+ ┣ 📂data    
+ ┃ ┗ 📂img        
+ ┣ 📂pages         
+ ┃ ┣ 📜국가 상세 분석.py        
+ ┃ ┗ 📜품목 상세 분석.py     
+ ┣ 📂modules      
  ┃ ┣ 📜recommender.py
  ┃ ┗ 📜utils.py
  ┣ 📜.gitignore
- ┣ 📜home.py
+ ┣ 📜K-Beauty-Direct.py
  ┣ 📜README.md
  ┗ 📜requirements.txt
