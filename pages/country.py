@@ -158,7 +158,7 @@ with col1:
     row = trade_df[(trade_df["국가"] == selected_country) & (trade_df["HSCODE"] == selected_hscode)]
     if not row.empty:
         radar_data = row.melt(id_vars=["국가", "HSCODE"],var_name="지표",value_name="값")
-        fig = px.line_polar(radar_data, r="값", theta="지표", line_close=True, hover_name="지표", hover_data={"값": True})
+        fig = px.line_polar(radar_data, r="값", theta="지표", line_close=True, hover_name="지표", hover_data={"값": True}, color_discrete_sequence=["#D6B3FF"])
         fig.update_traces(fill="toself")
         fig.update_layout(
             polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
@@ -178,14 +178,21 @@ with col2:
             for j, (_, r) in enumerate(radar_data.iloc[i:i+3].iterrows()):
                 with cols[j]:
                     st.markdown(f'#### {r["지표"]}') 
+                    val = r["값"]
+                    if val <= 3:
+                        bar_color = "#FFA8A8"  # 연한 빨강 (파스텔)
+                    elif val <= 7:
+                        bar_color = "#FFF29A"  # 연한 노랑
+                    else:
+                        bar_color = "#A8E6CF"  # 연한 초록
                     fig = go.Figure(go.Indicator(
                         mode="gauge+number",
                         value=r["값"],
-                        number={'valueformat': '.1f'},
+                        number={'valueformat': '.1f', 'font': {'color': '#111111'}},
                         title=None,
                         gauge={
                             'axis': {'range': [0, 10], 'dtick': 11},
-                            'bar': {'thickness': 1.0}             
+                            'bar': {'color': bar_color, 'thickness': 1},            
                         }
                     ))
                     fig.update_layout(height=150, width=270, margin=dict(t=20, b=0, l=0, r=0))
