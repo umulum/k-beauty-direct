@@ -2,10 +2,14 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 from recommender import initialize_recommender_system, recommend_countries
+from utils import inject_fonts
+
+inject_fonts() # 폰트 설정
 
 st.set_page_config(page_title="화장품 수출 추천 서비스", layout="wide")
 
 st.title("💄 화장품 수출 국가 추천 서비스")
+
 st.subheader("분석할 화장품 품목을 선택하세요.")
 
 # 품목 옵션
@@ -24,7 +28,7 @@ with col1:
         "품목 선택",
         options=[""] + list(product_options.keys()),
         format_func=lambda x: product_options.get(x, "품목을 선택하세요") if x else "--- 품목을 선택하세요 ---",
-        label_visibility="collapsed"  # 위쪽 라벨 숨김 (필요하면 제거)
+        label_visibility="collapsed"  # 위쪽 라벨 숨김 
     )
 
 with col2:

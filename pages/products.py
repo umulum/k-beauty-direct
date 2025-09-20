@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import altair as alt
+from utils import inject_fonts
+
+inject_fonts() # 폰트 설정
 
 st.set_page_config(page_title="품목 상세", layout="wide")
 

@@ -3,6 +3,9 @@ import pandas as pd
 import os
 import plotly.express as px
 import plotly.graph_objects as go
+from utils import inject_fonts
+
+inject_fonts() # 폰트 설정
 
 st.set_page_config(page_title="국가 상세", layout="wide")
 
@@ -34,37 +37,37 @@ country_code_map = {
     "태국": "TH", "튀르키예": "TR", "프랑스": "FR", "UAE": "AE"
 }
 
-# img_path = os.path.join("data", "img", f"{country_code_map[selected_country]}.jpg")
+img_path = os.path.join("data", "img", f"{selected_country}.png")
 img = f"https://www.kotra.or.kr/bigdata/resources/images/nation/{country_code_map[selected_country]}.jpg"
 url = f'https://www.kotra.or.kr/bigdata/marketAnalysis#search/{country_code_map[selected_country]}'
 
 # 국기, KPI 카드
-col1, col2 = st.columns([1, 3])  
-with col1:
+col1, col2, col3 = st.columns([0.5, 2, 1.5])  
 
+with col1:
     st.markdown(
         f"""
         <a href="{url}" target="_blank">
-            <img src="{img}" alt="{selected_country}">
+        <img src="{img}" width="170px" style="margin:10px; padding:5px; margin-top:40px;">
         </a>
         """,
         unsafe_allow_html=True
     )
-    
-    # if os.path.exists(img_path):
-    #     st.image(img_path, caption=selected_country, use_container_width=False)
-    
+
+with col3:
+    if os.path.exists(img_path):
+        st.image(img_path)
+
 with col2:
     kpi_row = kpi_df[kpi_df["국가"] == selected_country]
     if not kpi_row.empty:
         kpi_cols = [col for col in kpi_df.columns if col != "국가"]
         kpi_units = ["$", "건", "건", "건", "백만$"]
 
-        cols = st.columns(5)
-
-        for col, kpi_name, unit in zip(cols, kpi_cols, kpi_units):
+        # 첫 줄 (3개)
+        row1_cols = st.columns(3)
+        for col, kpi_name, unit in zip(row1_cols, kpi_cols[:3], kpi_units[:3]):
             value = kpi_row.iloc[0][kpi_name]
-            # HTML로 value와 unit 나누고 unit만 작게
             html = f"""
                 <div style="
                     text-align:center;
@@ -78,7 +81,27 @@ with col2:
                     <div style="font-size:24px;font-weight:bold;display:inline">{value}</div>
                     <div style="font-size:14px;color:gray;display:inline;margin-left:2px">{unit}</div>
                 </div>
-                """
+            """
+            col.markdown(html, unsafe_allow_html=True)
+
+        # 두 번째 줄 (2개)
+        row2_cols = st.columns(2)
+        for col, kpi_name, unit in zip(row2_cols, kpi_cols[3:], kpi_units[3:]):
+            value = kpi_row.iloc[0][kpi_name]
+            html = f"""
+                <div style="
+                    text-align:center;
+                    border:1px solid #ddd;
+                    border-radius:8px;
+                    padding:10px;
+                    margin:5px;
+                    background-color:#ffffff;
+                ">
+                    <div style="font-size:16px;font-weight:bold;margin-bottom:5px">{kpi_name}</div>
+                    <div style="font-size:24px;font-weight:bold;display:inline">{value}</div>
+                    <div style="font-size:14px;color:gray;display:inline;margin-left:2px">{unit}</div>
+                </div>
+            """
             col.markdown(html, unsafe_allow_html=True)
     else:
         st.warning("선택한 국가의 KPI 데이터가 없습니다.")
