@@ -1,14 +1,14 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from recommender import initialize_recommender_system, recommend_countries
-from utils import inject_fonts
+from modules.recommender import initialize_recommender_system, recommend_countries
+from modules.utils import inject_fonts
 
 inject_fonts() # 폰트 설정
 
-st.set_page_config(page_title="화장품 수출 추천 서비스", layout="wide")
+st.set_page_config(page_title="K-Beauty Direct", layout="wide")
 
-st.title("💄 화장품 수출 국가 추천 서비스")
+st.title("💄 화장품 수출 국가 추천 서비스: K-Beauty Direct")
 
 st.subheader("분석할 화장품 품목")
 
@@ -38,7 +38,7 @@ with col2:
         else:
             # 선택 안 한 경우 → 기본값 330410
             st.session_state["selected_product"] = "330410"
-        st.switch_page("pages/products.py")
+        st.switch_page("pages/품목 상세 분석.py")
 
 st.markdown("----")
 
@@ -132,7 +132,7 @@ if keywords_input:
 
                             if st.button(f"📊 {country_names[country]} 상세 보기", key=f"detail_{country}_{i}", use_container_width=True):
                                 st.session_state.selected_country = country_names[country]
-                                st.switch_page("pages/country.py")
+                                st.switch_page("pages/국가 상세 분석.py")
                 else:
                     st.warning("⚠️ 입력하신 키워드와 매칭되는 결과가 없습니다. 다른 키워드를 시도해보세요.")
                     
@@ -159,6 +159,7 @@ def load_excel(file_path: str):
 excel_file = "data/한국무역통계포털 3304 수출입.xlsx"  # 파일 경로 수정
 df = load_excel(excel_file)
 
+st.subheader("화장품 수출입 변화")
 col1, col2 = st.columns(2)
 
 with col1:

@@ -5,13 +5,13 @@ import plotly.express as px
 import plotly.graph_objects as go
 import requests
 import time
-from utils import inject_fonts
+from modules.utils import inject_fonts
 
 inject_fonts() # 폰트 설정
 
-st.set_page_config(page_title="국가 상세", layout="wide")
+st.set_page_config(page_title="국가 상세 분석", layout="wide")
 
-st.title("🌎 국가 상세 페이지")
+st.title("🌎 국가별 상세 분석")
 
 @st.cache_data
 def load_excel(path):

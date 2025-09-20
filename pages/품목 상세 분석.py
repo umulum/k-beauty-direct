@@ -2,13 +2,11 @@ import streamlit as st
 import pandas as pd
 import pydeck as pdk
 import altair as alt
-from utils import inject_fonts
+from modules.utils import inject_fonts
 
 inject_fonts() # 폰트 설정
 
-st.set_page_config(page_title="품목 상세", layout="wide")
-
-st.title("📊 품목 상세 페이지")
+st.set_page_config(page_title="품목 상세 분석", layout="wide")
 
 product_options = {
     "330410": "입술화장품 (립스틱 등)",
@@ -17,12 +15,10 @@ product_options = {
     "330491": "페이스파우다, 베이비파우다, 탈쿰파우다 등 (가루형태)",
     "330499": "기초·미용·메이크업·어린이용·선크림 등 (가루형태 제외)"
 }
-
 product_code = st.session_state.get("selected_product", "330410")
 product_name = product_options[product_code]
 
-st.subheader(f"품목명: {product_name}")
-st.write(f"선택한 품목 코드: {product_code}")
+st.title(f"📊 화장품 품목 상세 분석")
 
 # 캐시된 데이터 로딩 함수
 @st.cache_data
@@ -43,20 +39,39 @@ df["기준연월"] = pd.to_datetime(df["조회기준"])
 df["수출금액 (천$)"] = df["수출금액 ($)"]/1000
 
 # 조회 기준 선택 
-# available_periods = sorted(df["기준연월"].unique(), reverse=True)
-# default_period = available_periods[0]
-
-
 available_periods = pd.date_range(start="2025-01-01", end="2025-07-01", freq="MS")  
 available_periods = sorted(available_periods, reverse=True)
 default_period = available_periods[0]
 
-selected_period = st.selectbox(
-    "조회 기준 연월",
-    options=available_periods,
-    index=0,
-    format_func=lambda x: x.strftime("%Y년 %m월")  # 표시용 포맷
-)
+c1, c2 = st.columns(2)
+
+with c1:
+    product_keys = list(product_options.keys())
+    try:
+        current_index = product_keys.index(product_code)
+    except ValueError:
+        current_index = 0
+    
+    selected_key = st.selectbox(
+        "품목 선택",
+        options=product_keys,
+        index=current_index,
+        format_func=lambda x: product_options[x],
+        key="product_selector"  # 고유한 키 추가
+    )
+    
+    # 선택이 변경되었을 때만 세션 상태 업데이트
+    if selected_key != st.session_state.get("selected_product"):
+        st.session_state["selected_product"] = selected_key
+        st.rerun() 
+
+with c2:
+    selected_period = st.selectbox(
+        "조회 기준 연월",
+        options=available_periods,
+        index=0,
+        format_func=lambda x: x.strftime("%Y년 %m월")  # 표시용 포맷
+    )
 
 # 데이터 필터링 (상위 10개)
 filtered = df[df["기준연월"] == selected_period].nsmallest(10, "순위")
