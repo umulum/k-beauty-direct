@@ -140,15 +140,24 @@ with col2:
 
 # Trade Indicator 레이더 차트 
 available_hscodes = [330410, 330420, 330430, 330491, 330499]
+product_options = {
+    "입술화장품 (립스틱 등)": 330410,
+    "눈화장용 (아이섀도 등)": 330420,
+    "매니큐어/페디큐어용 (네일 에나멜 등)": 330430,
+    "페이스파우다, 베이비파우다, 탈쿰파우다 등 (가루형태)": 330491,
+    "기초·미용·메이크업·어린이용·선크림 등 (가루형태 제외)": 330499
+}
 default_index = 0
 
 col1, col2 = st.columns([1.5, 3]) 
 with col1:
-    selected_hscode = st.selectbox("HS CODE 선택", available_hscodes, index=default_index)
+    dropdown_options = list(product_options.keys())
+    selected_product = st.selectbox("제품 선택", dropdown_options, index=0)
+    selected_hscode = product_options[selected_product]
+    # selected_hscode = st.selectbox("HS CODE 선택", available_hscodes, index=default_index)
     row = trade_df[(trade_df["국가"] == selected_country) & (trade_df["HSCODE"] == selected_hscode)]
     if not row.empty:
         radar_data = row.melt(id_vars=["국가", "HSCODE"],var_name="지표",value_name="값")
-        # fig = px.line_polar(radar_data, r="값", theta="지표", line_close=True)
         fig = px.line_polar(radar_data, r="값", theta="지표", line_close=True, hover_name="지표", hover_data={"값": True})
         fig.update_traces(fill="toself")
         fig.update_layout(
@@ -180,10 +189,6 @@ with col2:
                         }
                     ))
                     fig.update_layout(height=150, width=270, margin=dict(t=20, b=0, l=0, r=0))
-                    # fig.add_annotation(
-                    #     x=0.5, y=1.3, xref='paper', yref='paper', 
-                    #     text=r["지표"], showarrow=False, font=dict(size=16)
-                    # )
                     st.plotly_chart(fig, use_container_width=False, key=f'gauge_{i}_{j}')
                 
     else:
