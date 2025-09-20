@@ -43,6 +43,12 @@ available_periods = pd.date_range(start="2025-01-01", end="2025-07-01", freq="MS
 available_periods = sorted(available_periods, reverse=True)
 default_period = available_periods[0]
 
+if "selected_product" not in st.session_state:
+    st.session_state["selected_product"] = product_code
+
+if "selected_period" not in st.session_state:
+    st.session_state["selected_period"] = default_period
+
 c1, c2 = st.columns(2)
 
 with c1:
@@ -63,7 +69,6 @@ with c1:
     # 선택이 변경되었을 때만 세션 상태 업데이트
     if selected_key != st.session_state.get("selected_product"):
         st.session_state["selected_product"] = selected_key
-        st.rerun() 
 
 with c2:
     selected_period = st.selectbox(
@@ -72,6 +77,7 @@ with c2:
         index=0,
         format_func=lambda x: x.strftime("%Y년 %m월")  # 표시용 포맷
     )
+    st.session_state["selected_period"] = selected_period
 
 # 데이터 필터링 (상위 10개)
 filtered = df[df["기준연월"] == selected_period].nsmallest(10, "순위")
