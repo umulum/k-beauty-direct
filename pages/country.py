@@ -94,6 +94,13 @@ with col2:
 # Trade Indicator 레이더 차트 
 available_hscodes = [330410, 330420, 330430, 330491, 330499]
 default_index = 0
+product_options = {
+    330410: "입술화장품 (립스틱 등)",
+    330420: "눈화장용 (아이섀도 등)",
+    330430: "매니큐어/페디큐어용 (네일 에나멜 등)",
+    330491: "페이스파우다, 베이비파우다, 탈쿰파우다 등 (가루형태)",
+    330499: "기초·미용·메이크업·어린이용·선크림 등 (가루형태 제외)"
+}
 
 col1, col2 = st.columns([1.5, 3]) 
 with col1:
@@ -105,10 +112,13 @@ with col1:
         fig = px.line_polar(radar_data, r="값", theta="지표", line_close=True, hover_name="지표", hover_data={"값": True})
         fig.update_traces(fill="toself")
         fig.update_layout(
+            width=600, height=400,
             polar=dict(radialaxis=dict(visible=True, range=[0, 10])),
             dragmode=False  # 확대/이동 비활성화
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=False)
+
+
     else:
         st.warning("선택한 국가와 HS CODE 데이터가 없습니다.")
 
@@ -132,7 +142,7 @@ with col2:
                             'bar': {'thickness': 1.0}             
                         }
                     ))
-                    fig.update_layout(height=150, width=270, margin=dict(t=20, b=0, l=0, r=0))
+                    fig.update_layout(height=135, width=270, margin=dict(t=0, b=0, l=0, r=0))
                     # fig.add_annotation(
                     #     x=0.5, y=1.3, xref='paper', yref='paper', 
                     #     text=r["지표"], showarrow=False, font=dict(size=16)
