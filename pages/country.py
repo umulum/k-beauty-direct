@@ -3,6 +3,8 @@ import pandas as pd
 import os
 import plotly.express as px
 import plotly.graph_objects as go
+import requests
+import time
 
 st.set_page_config(page_title="국가 상세", layout="wide")
 
@@ -14,6 +16,43 @@ def load_excel(path):
     kpi_df = pd.read_excel(path, sheet_name="KPI")
     return trade_df, kpi_df
 
+# n8n 웹훅 호출
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_legal_info(country_name):
+    """n8n 워크플로우를 호출하여 법률 정보를 가져오는 함수"""
+    webhook_url = "http://localhost:5678/webhook/legal-info-webhook"
+    payload = {"query": {"country": country_name}}
+
+    try:
+        with st.spinner(f'{country_name}의 최근 화장품 수출 관련 법률 정보를 분석 중입니다... (최대 10분 소요됩니다)'):
+            response = requests.post(
+                webhook_url,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=300 
+            )
+            response.raise_for_status()  
+
+            if not response.text.strip():
+                return "오류: n8n에서 빈 응답을 받았습니다. 워크플로우를 확인해주세요."
+
+            data = response.json()
+
+            if data.get('success'):
+                return data.get('summary', '오류: 응답에 요약 정보가 없습니다.')
+            else:
+                return data.get('message', "선택한 국가의 법률 정보 데이터가 없습니다.")
+
+    except requests.exceptions.Timeout:
+        return "오류: 요청 시간이 초과되었습니다. n8n 워크플로우 실행이 너무 오래 걸립니다."
+    except requests.exceptions.ConnectionError:
+        return f"오류: n8n 서버에 연결할 수 없습니다. URL: {webhook_url}"
+    except requests.exceptions.HTTPError as e:
+        return f"서버 오류: {e.response.status_code} 응답. n8n 워크플로우 에러를 확인하세요."
+    except json.JSONDecodeError:
+        return f"오류: n8n 응답을 파싱할 수 없습니다. 응답 내용: {response.text[:200]}"
+    except Exception as e:
+        return f"알 수 없는 오류가 발생했습니다: {str(e)}"
 trade_df, kpi_df = load_excel("data/국가 정보.xlsx")
 
 countries = ["미국", "베트남", "브라질", "영국", "인도", "인도네시아",
@@ -27,6 +66,14 @@ selected_country = st.selectbox(
     index=countries.index(selected_country_name)
     # key="selected_country"                    
 )
+
+# 국가가 변경시 정보 초기화
+if st.session_state.get("selected_country") != selected_country:
+    st.session_state.selected_country = selected_country
+    if 'legal_info' in st.session_state:
+        del st.session_state.legal_info
+    if 'legal_info_loaded' in st.session_state:
+        del st.session_state.legal_info_loaded
 
 country_code_map = {
     "미국": "US", "베트남": "VN", "브라질": "BR", "영국": "GB",
@@ -133,3 +180,49 @@ with col2:
                 
     else:
         st.warning("선택한 국가와 HS CODE 데이터가 없습니다.")
+
+st.markdown("---")
+
+
+st.title("⚖️ 화장품 수출 관련 법률 정보")
+
+if 'legal_info_loaded' not in st.session_state:
+    st.session_state.legal_info_loaded = False
+    st.session_state.legal_info = ""
+
+if st.button("📖 법률 요약하기", key="get_legal_summary", type="primary"):
+    summary = get_legal_info(selected_country)
+    st.session_state.legal_info = summary
+    st.session_state.legal_info_loaded = True
+    st.rerun() 
+
+if not st.session_state.legal_info_loaded:
+    st.info(f"'{selected_country}' 국가의 화장품 수출 관련 법률 정보를 분석하려면 위의 '법률 요약하기' 버튼을 클릭하세요.")
+else:
+    result = st.session_state.legal_info
+    
+    is_error = isinstance(result, str) and result.startswith(("오류:", "서버 오류", "네트워크 오류", "알 수 없는 오류", "요청 시간이 초과", "법률 정보 처리 실패", "선택한 국가의"))
+    
+    if is_error:
+        st.error(result)
+        if st.button("🔄 다시 시도", key="retry_legal_info"):
+            get_legal_info.clear()
+            st.session_state.legal_info_loaded = False
+            st.session_state.legal_info = ""
+            st.rerun()
+    else:
+        st.markdown("---")
+        st.markdown(result, unsafe_allow_html=True)
+
+
+with st.expander("ℹ️ 법률 정보 이용 안내"):
+    st.markdown("""
+    **주의사항:**
+    - 본 법률 정보는 참고용으로만 사용하시기 바랍니다.
+    - 실제 수출 전에는 반드시 해당 국가의 최신 법률 및 규정을 확인하시기 바랍니다.
+    - 법률 정보는 변경될 수 있으므로 정기적으로 업데이트를 확인해주세요.
+    
+    **데이터 출처:**
+    - 법제처 세계법제정보센터 (world.moleg.go.kr)
+    - AI 분석을 통한 요약 정보
+    """)
