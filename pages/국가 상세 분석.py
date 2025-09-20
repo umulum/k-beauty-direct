@@ -98,7 +98,7 @@ with col1:
             <a href="{url}" target="_blank">
                 <img src="{img}" width="180px" style="margin:10px 20px 5px 20px; padding:10px;">
             </a>
-            <div style="color:gray;font-family:'JalnanGothic'">{selected_country} ({country_code_map[selected_country]})</div>
+            <div style="color:#555555;font-family:'JalnanGothic'">{selected_country} ({country_code_map[selected_country]})</div>
         </div>
         """,
         unsafe_allow_html=True
@@ -107,7 +107,7 @@ with col1:
 
 with col3:
     if os.path.exists(img_path):
-        st.markdown(f"""<div style="color:gray;font-family:'JalnanGothic';margin-bottom: 10px;">{selected_country}의 화장품 키워드</div>""",
+        st.markdown(f"""<div style="color:#555555;font-family:'JalnanGothic';margin-bottom: 10px;">{selected_country}의 화장품 키워드</div>""",
         unsafe_allow_html=True)
         st.image(img_path)
 
@@ -205,6 +205,7 @@ with col2:
                         gauge={
                             'axis': {'range': [0, 10], 'dtick': 11},
                             'bar': {'color': bar_color, 'thickness': 1},            
+                            'bordercolor': "#D3D3D3"
                         }
                     ))
                     fig.update_layout(height=150, width=270, margin=dict(t=0, b=0, l=0, r=0), font=dict(family="JalnanGothic"))
@@ -247,14 +248,22 @@ else:
         st.markdown(result, unsafe_allow_html=True)
 
 
-st.markdown("#### ℹ️ 법률 정보 이용 안내")
-st.markdown("""
-**주의사항:**
-- 본 법률 정보는 참고용으로만 사용하시기 바랍니다.
-- 실제 수출 전에는 반드시 해당 국가의 최신 법률 및 규정을 확인하시기 바랍니다.
-- 법률 정보는 변경될 수 있으므로 정기적으로 업데이트를 확인해주세요.
-
-**데이터 출처:**
-- 법제처 세계법제정보센터 (world.moleg.go.kr)
-- AI 분석을 통한 요약 정보
-""")
+st.markdown(
+    f"""
+    <div style="font-family: 'JalnanGothic', sans-serif; line-height:1.5;">
+        <h4> ℹ️ 법률 정보 이용 안내 </h4>
+        <strong>주의사항:</strong>
+        <ul>
+            <li>본 법률 정보는 참고용으로만 사용하시기 바랍니다.</li>
+            <li>실제 수출 전에는 반드시 해당 국가의 최신 법률 및 규정을 확인하시기 바랍니다.</li>
+            <li>법률 정보는 변경될 수 있으므로 정기적으로 업데이트를 확인해주세요.</li>
+        </ul>
+        <strong>데이터 출처:</strong>
+        <ul>
+            <li>법제처 세계법제정보센터 (world.moleg.go.kr)</li>
+            <li>AI 분석을 통한 요약 정보</li>
+        </ul>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
