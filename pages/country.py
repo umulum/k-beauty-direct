@@ -24,7 +24,7 @@ def get_legal_info(country_name):
     payload = {"query": {"country": country_name}}
 
     try:
-        with st.spinner(f'{country_name}의 최근 화장품 수출 관련 법률 정보를 분석 중입니다...'):
+        with st.spinner(f'{country_name}의 최근 화장품 수출 관련 법률 정보를 분석 중입니다... (최대 10분 소요됩니다)'):
             response = requests.post(
                 webhook_url,
                 json=payload,
@@ -212,7 +212,6 @@ else:
             st.rerun()
     else:
         st.markdown("---")
-        st.markdown("### 📄 법률 정보 요약")
         st.markdown(result, unsafe_allow_html=True)
 
 
