@@ -33,10 +33,6 @@ excel_file = "data/화장품 수출입.xlsx"
 data = load_excel(excel_file)
 country_coords = data["lat-lon"]
 
-df = data[str(product_code)]
-df["기준연월"] = pd.to_datetime(df["조회기준"])
-df["수출금액 (천$)"] = df["수출금액 ($)"]/1000
-
 # 조회 기준 설정
 available_periods = pd.date_range(start="2025-01-01", end="2025-07-01", freq="MS")  
 available_periods = sorted(available_periods, reverse=True)
@@ -59,6 +55,9 @@ if product_code not in product_options:
 
 c1, c2 = st.columns(2)
 
+# 변경사항을 추적할 변수
+needs_rerun = False
+
 with c1:
     product_keys = list(product_options.keys())
     current_product_index = product_keys.index(product_code)
@@ -70,13 +69,13 @@ with c1:
         format_func=lambda x: product_options[x]
     )
     
-    # 품목이 변경되면 URL 파라미터 업데이트
+    # 품목이 변경되면 플래그 설정
     if new_product != product_code:
         st.query_params.update({
             "product": new_product,
             "period": selected_period.strftime("%Y-%m-01")
         })
-        st.rerun()
+        needs_rerun = True
 
 with c2:
     current_period_index = list(available_periods).index(selected_period)
@@ -88,13 +87,22 @@ with c2:
         format_func=lambda x: x.strftime("%Y년 %m월")
     )
     
-    # 기간이 변경되면 URL 파라미터 업데이트
+    # 기간이 변경되면 플래그 설정
     if new_period != selected_period:
         st.query_params.update({
             "product": product_code,
             "period": new_period.strftime("%Y-%m-01")
         })
-        st.rerun()
+        needs_rerun = True
+
+# 변경사항이 있으면 여기서 재실행하고 함수 종료
+if needs_rerun:
+    st.rerun()
+    st.stop()  # 이후 코드 실행 방지
+
+df = data[str(product_code)]
+df["기준연월"] = pd.to_datetime(df["조회기준"])
+df["수출금액 (천$)"] = df["수출금액 ($)"]/1000
 
 # 데이터 필터링 (상위 10개)
 filtered = df[df["기준연월"] == selected_period].nsmallest(10, "순위")
