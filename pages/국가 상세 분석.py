@@ -4,7 +4,6 @@ import os
 import plotly.express as px
 import plotly.graph_objects as go
 import requests
-import time
 import json
 from modules.utils import inject_fonts
 
