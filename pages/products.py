@@ -203,4 +203,4 @@ with col3:
 
 # 데이터 표
 st.subheader(f"📑 {product_name} 상위 10개국 ({selected_period.strftime('%Y년 %m월')})")
-st.dataframe(filtered[["순위", "국가명", "수출금액 ($)", "수출 점유율"]])
+st.dataframe(filtered[["순위", "국가명", "수출금액 ($)", "수출 점유율", "수출 증감률"]], hide_index=True)

@@ -84,18 +84,18 @@ country_code_map = {
     "태국": "TH", "튀르키예": "TR", "프랑스": "FR", "UAE": "AE"
 }
 
-img_path = os.path.join("data", "img", f"{selected_country}.png")
+img_path = os.path.join("data", "img", f"{selected_country}.jpg")
 img = f"https://www.kotra.or.kr/bigdata/resources/images/nation/{country_code_map[selected_country]}.jpg"
 url = f'https://www.kotra.or.kr/bigdata/marketAnalysis#search/{country_code_map[selected_country]}'
 
 # 국기, KPI 카드
-col1, col2, col3 = st.columns([0.5, 2, 1.5])  
+col1, col2, col3 = st.columns([0.6, 2.2, 1.2])  
 
 with col1:
     st.markdown(
         f"""
         <a href="{url}" target="_blank">
-        <img src="{img}" width="170px" style="margin:10px; padding:5px; margin-top:40px;">
+        <img src="{img}" width="180px" style="margin:20px; padding:10px; margin-top:30px;">
         </a>
         """,
         unsafe_allow_html=True
