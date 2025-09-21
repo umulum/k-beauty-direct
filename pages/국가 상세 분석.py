@@ -56,6 +56,7 @@ def get_legal_info(country_name):
         return f"오류: n8n 응답을 파싱할 수 없습니다. 응답 내용: {response.text[:200]}"
     except Exception as e:
         return f"알 수 없는 오류가 발생했습니다: {str(e)}"
+    
 trade_df, kpi_df = load_excel("data/국가 정보.xlsx")
 
 countries = ["미국", "베트남", "브라질", "영국", "인도", "인도네시아",
@@ -219,14 +220,21 @@ st.markdown("---")
 
 st.title("⚖️ 화장품 수출 관련 법률 정보")
 
-if 'legal_info_loaded' not in st.session_state:
+# 현재 국가와 이전에 검색한 국가가 다르면 초기화
+if 'legal_info_country' not in st.session_state or st.session_state.legal_info_country != selected_country:
     st.session_state.legal_info_loaded = False
     st.session_state.legal_info = ""
+    st.session_state.legal_info_country = selected_country
+
+# if 'legal_info_loaded' not in st.session_state:
+#     st.session_state.legal_info_loaded = False
+#     st.session_state.legal_info = ""
 
 if st.button("📖 법률 요약하기", key="get_legal_summary", type="primary"):
     summary = get_legal_info(selected_country)
     st.session_state.legal_info = summary
     st.session_state.legal_info_loaded = True
+    st.session_state.legal_info_country = selected_country  # 검색한 국가 저장
     st.rerun() 
 
 if not st.session_state.legal_info_loaded:
@@ -242,6 +250,7 @@ else:
             get_legal_info.clear()
             st.session_state.legal_info_loaded = False
             st.session_state.legal_info = ""
+            # 국가는 그대로 유지 (현재 국가로 다시 시도하는 것이므로)
             st.rerun()
     else:
         st.markdown("---")
