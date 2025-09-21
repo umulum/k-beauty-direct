@@ -42,7 +42,7 @@ with col2:
 
 st.markdown("----")
 
-st.subheader("화장품 트렌드 국가 추천 시스템")
+st.subheader("글로벌 맞춤형 국가 추천 시스템")
 st.markdown("관심 있는 화장품 키워드를 입력하면 관련 트렌드가 높은 국가를 추천해드립니다!")
 
 
