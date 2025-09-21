@@ -41,7 +41,10 @@ with col2:
 st.markdown("----")
 
 st.subheader("글로벌 맞춤형 국가 추천 시스템")
-st.markdown("관심 있는 화장품 키워드를 입력하면 관련 트렌드가 높은 국가를 추천해드립니다!")
+st.markdown("""
+            관심 있는 화장품 키워드를 입력하면 관련 트렌드가 높은 국가를 추천해드립니다!
+            화장품 키워드를 입력해 보세요 (영문/한글 모두 검색 가능)
+            """)
 
 country_names = {
     'usa': '미국',
@@ -67,19 +70,15 @@ if "recommender_data" not in st.session_state:
 
 recommender_data = st.session_state.recommender_data
 
-# 사용자 입력
-if "keywords_input" not in st.session_state:
-    st.session_state.keywords_input = ""
-
 col1, col2 = st.columns([3, 1])
 
 with col1:
     keywords_input = st.text_input(
         "키워드 입력",
-        value=st.session_state.keywords_input,
-        placeholder="예: vegan, organic, skincare, 비건, 유기농, 스킨케어",
+        placeholder="예시: 비건, 스킨케어, 미백, 프리미엄, 유기농",
+        key="keywords_input"  # key 사용으로 자동 세션 상태 관리
     )
-    st.session_state.keywords_input = keywords_input
+    # st.session_state.keywords_input = keywords_input
 with col2:
     top_n = st.selectbox("추천 국가 수:", [3, 5], index=0)
 
