@@ -24,17 +24,17 @@ col1, col2 = st.columns([4, 1])
 with col1:
     selected_key = st.selectbox(
         "품목 선택",
-        options=[""] + list(product_options.keys()),
-        format_func=lambda x: product_options.get(x, "품목을 선택하세요") if x else "--- 품목을 선택하세요 ---",
-        label_visibility="collapsed"  # 위쪽 라벨 숨김 
+        options=list(product_options.keys()),  # "" 제거
+        index=0,  # 첫 번째 항목을 기본값으로
+        format_func=lambda x: product_options[x],
+        label_visibility="collapsed"
     )
 
 with col2:
     if st.button("조회하기"):
-        if selected_key:
+        if selected_key and selected_key != "":
             st.session_state["selected_product"] = selected_key
         else:
-            # 선택 안 한 경우 → 기본값 330410
             st.session_state["selected_product"] = "330410"
         st.switch_page("pages/품목 상세 분석.py")
 

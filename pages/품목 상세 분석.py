@@ -39,9 +39,8 @@ available_periods = sorted(available_periods, reverse=True)
 default_period = available_periods[0]
 
 # URL 파라미터에서 값 가져오기 또는 기본값 설정
-query_params = st.query_params
-product_code = query_params.get("product", "330410")
-period_str = query_params.get("period", default_period.strftime("%Y-%m-01"))
+# product_code = st.query_params.get("product", "330410")
+period_str = st.query_params.get("period", default_period.strftime("%Y-%m-01"))
 
 try:
     selected_period = pd.to_datetime(period_str)
@@ -66,16 +65,14 @@ with c1:
         "품목 선택",
         options=product_keys,
         index=current_product_index,
-        format_func=lambda x: product_options[x]
+        format_func=lambda x: product_options[x],
+        key="product_selector"  # 고유 키 추가
     )
     
-    # 품목이 변경되면 플래그 설정
+    # 품목이 변경되면 session_state 업데이트하고 페이지 새로고침
     if new_product != product_code:
-        st.query_params.update({
-            "product": new_product,
-            "period": selected_period.strftime("%Y-%m-01")
-        })
-        needs_rerun = True
+        st.session_state["selected_product"] = new_product
+        st.rerun()
 
 with c2:
     current_period_index = list(available_periods).index(selected_period)

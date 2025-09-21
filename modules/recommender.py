@@ -131,7 +131,7 @@ def load_embedding_model():
     """임베딩 모델을 로드합니다. (지연 로딩)"""
     try:
         model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-        print("임베딩 모델 로드 완료")
+        # print("임베딩 모델 로드 완료")
         return model
     except Exception as e:
         st.error(f"임베딩 모델 로드 실패: {e}")
@@ -151,7 +151,7 @@ def prepare_embeddings(_model, keywords):
         # 새로운 키워드가 있는지 확인
         missing_keywords = [kw for kw in keywords if kw not in cached_embeddings]
         if not missing_keywords:
-            print("캐시된 임베딩 사용")
+            # print("캐시된 임베딩 사용")
             return {kw: cached_embeddings[kw] for kw in keywords}
         
         # 새로운 키워드만 임베딩 계산
@@ -167,7 +167,7 @@ def prepare_embeddings(_model, keywords):
         return {kw: all_embeddings[kw] for kw in keywords}
     
     # 첫 실행: 모든 임베딩 계산
-    print(f"모든 키워드 {len(keywords)}개 임베딩 계산 중...")
+    # print(f"모든 키워드 {len(keywords)}개 임베딩 계산 중...")
     embeddings = {kw: _model.encode(kw) for kw in keywords}
     
     # 임베딩 저장
