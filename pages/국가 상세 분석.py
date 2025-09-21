@@ -23,7 +23,7 @@ def load_excel(path):
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_legal_info(country_name):
     """n8n 워크플로우를 호출하여 법률 정보를 가져오는 함수"""
-    webhook_url = "https://hahah.app.n8n.cloud/webhook/legal-info-webhook"
+    webhook_url = "https://threej.app.n8n.cloud/webhook/legal-info-webhook"
     payload = {"query": {"country": country_name}}
 
     try:
