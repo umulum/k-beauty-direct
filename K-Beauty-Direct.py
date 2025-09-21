@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from modules.recommender import initialize_recommender_system, recommend_countries
+from modules.recommender import initialize_recommender_system, fast_recommend
 from modules.utils import inject_fonts
 
 inject_fonts() # 폰트 설정
@@ -9,10 +9,8 @@ inject_fonts() # 폰트 설정
 st.set_page_config(page_title="K-Beauty Direct", layout="wide")
 
 st.title("💄 화장품 수출 국가 추천 서비스: K-Beauty Direct")
-
 st.subheader("분석할 화장품 품목")
 
-# 품목 옵션
 product_options = {
     "330410": "입술화장품 (립스틱 등)",
     "330420": "눈화장용 (아이섀도 등)",
@@ -45,7 +43,6 @@ st.markdown("----")
 st.subheader("글로벌 맞춤형 국가 추천 시스템")
 st.markdown("관심 있는 화장품 키워드를 입력하면 관련 트렌드가 높은 국가를 추천해드립니다!")
 
-
 country_names = {
     'usa': '미국',
     'uae': '아랍에미리트',
@@ -63,18 +60,12 @@ country_names = {
 
 st.markdown("**추천 국가:** " + ", ".join(country_names.values()))
 
-# 추천 시스템 초기화 (캐시됨)
-@st.cache_data
-def get_recommender_data():
-    return initialize_recommender_system()
-
+# 추천 시스템 초기화 (세션 상태로 관리)
 if "recommender_data" not in st.session_state:
     with st.spinner('추천 시스템 초기화 중...'):
         st.session_state.recommender_data = initialize_recommender_system()
 
 recommender_data = st.session_state.recommender_data
-
-# st.success("✅ 시스템 초기화 완료!")
 
 # 사용자 입력
 if "keywords_input" not in st.session_state:
@@ -99,13 +90,10 @@ if keywords_input:
     if keywords:
         with st.spinner('국가를 추천하는 중...'):
             try:
-                recommendations = recommend_countries(
+                # fast_recommend 헬퍼 함수 사용 (더 빠른 추천)
+                recommendations = fast_recommend(
+                    recommender_data,
                     keywords,
-                    recommender_data['tfidf_transformer'],
-                    recommender_data['tfidf_matrix'],
-                    recommender_data['counts_df'],
-                    recommender_data['model'],
-                    recommender_data['keyword_embeddings'],
                     top_n=top_n,
                     return_scores=True
                 )
@@ -140,6 +128,13 @@ if keywords_input:
                 st.error(f"❌ 추천 중 오류가 발생했습니다: {str(e)}")
     else:
         st.info("키워드를 입력해주세요.")
+
+# TF-IDF 캐시 관리 (개발/디버깅용)
+# if st.sidebar.button("🔄 TF-IDF 캐시 재빌드", help="데이터가 변경되었을 때 사용"):
+#     with st.spinner('TF-IDF 캐시를 재빌드하는 중...'):
+#         st.session_state.recommender_data = initialize_recommender_system(force_rebuild=True)
+#         st.sidebar.success("캐시가 재빌드되었습니다!")
+
 st.markdown("----")
 
 # --------------------------------
