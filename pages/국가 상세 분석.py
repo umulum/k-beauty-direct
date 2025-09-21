@@ -23,7 +23,7 @@ def load_excel(path):
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_legal_info(country_name):
     """n8n 워크플로우를 호출하여 법률 정보를 가져오는 함수"""
-    webhook_url = "http://localhost:5678/webhook/legal-info-webhook"
+    webhook_url = "https://hahah.app.n8n.cloud/webhook/legal-info-webhook"
     payload = {"query": {"country": country_name}}
 
     try:
@@ -233,7 +233,7 @@ if not st.session_state.legal_info_loaded:
     st.info(f"'{selected_country}' 국가의 화장품 수출 관련 법률 정보를 분석하려면 위의 '법률 요약하기' 버튼을 클릭하세요.")
 else:
     result = st.session_state.legal_info
-    
+
     is_error = isinstance(result, str) and result.startswith(("오류:", "서버 오류", "네트워크 오류", "알 수 없는 오류", "요청 시간이 초과", "법률 정보 처리 실패", "선택한 국가의"))
     
     if is_error:
